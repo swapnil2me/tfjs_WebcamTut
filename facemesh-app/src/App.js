@@ -63,19 +63,14 @@ function App() {
 
   return (
     <div className="App">
-      <div onClick={() => main()} >
-        <h4>Find Face</h4>
-      </div>
+      <button onClick={() => main()} >Find Face</button>
       <header className="App-header">
-
         <div id="videoContainer" className="container">
           <img id="face" src={logo} alt="faceImage" width="224" height="224" className="centered"/>
           <video autoPlay playsInline muted id="webcam" width="224" height="224" className="centered"></video>
           <svg ref={svgRef} className="centered" width="224" height="224"/>
         </div>
-
       </header>
-
     </div>
   );
 }

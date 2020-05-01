@@ -1,0 +1,12 @@
+
+facemesh-app/src/IMG_20171029_105033.jpg
+# dependencies
+facemesh-app/node_modules
+facemesh-app/.pnp
+facemesh-app/.pnp.js
+
+# testing
+facemesh-app/coverage
+
+# production
+facemesh-app/build

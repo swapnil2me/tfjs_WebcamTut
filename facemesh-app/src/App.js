@@ -1,4 +1,4 @@
-// import * as tf from '@tensorflow/tfjs';
+import * as tf from '@tensorflow/tfjs';
 import logo from './ModiandI.jpg';
 import React, {useRef} from 'react';
 import * as d3 from 'd3';
@@ -20,31 +20,41 @@ var line = d3.line()
 
 function App() {
 
+  let j = 0;
   const svgRef = useRef();
   async function main() {
 
     var svg = d3.select(svgRef.current);
     // Pass in a video stream (or an image, canvas, or 3D tensor) to obtain an
     // array of detected faces from the MediaPipe graph.
-    // const webcamElement = document.getElementById('webcam');
-    // const webcam = await tf.data.webcam(webcamElement);
-    // const img = await webcam.capture();
-    // const predictions = await model.estimateFaces(img);
-    const predictions = await model.estimateFaces(document.getElementById('face'));
-    for (let i = 0; i < predictions.length; i++) {
+    const webcamElement = document.getElementById('webcam');
+    const webcam = await tf.data.webcam(webcamElement);
 
-      let br = predictions[i].boundingBox.bottomRight[0];
-      let tl = predictions[i].boundingBox.topLeft [0];
-      var dataArray = [{x:tl[0],y:br[1]},
-                       {x:tl[0],y:tl[1]},
-                       {x:br[0],y:tl[1]},
-                       {x:br[0],y:br[1]},
-                       {x:tl[0],y:br[1]}];
-      svg.append("path")
-          .attr("fill","none")
-          .attr("stroke","yellow")
-          .attr("d",line(dataArray));
+    while (true) {
+
+      const img = await webcam.capture();
+      const predictions = await model.estimateFaces(img);
+      // const predictions = await model.estimateFaces(document.getElementById('face'));
+      for (let i = 0; i < predictions.length; i++) {
+        svg.selectAll("*").remove();
+        let br = predictions[i].boundingBox.bottomRight[0];
+        let tl = predictions[i].boundingBox.topLeft [0];
+        var dataArray = [{x:tl[0],y:br[1]},
+                         {x:tl[0],y:tl[1]},
+                         {x:br[0],y:tl[1]},
+                         {x:br[0],y:br[1]},
+                         {x:tl[0],y:br[1]}];
+        svg.append("path")
+            .attr("fill","none")
+            .attr("stroke","yellow")
+            .attr("d",line(dataArray));
+        console.log(j++);
+      }
+      img.dispose();
+      await tf.nextFrame();
     }
+
+
 
     // if (predictions.length > 0) {
     //   for (let i = 0; i < predictions.length; i++) {
@@ -66,7 +76,6 @@ function App() {
       <button onClick={() => main()} >Find Face</button>
       <header className="App-header">
         <div id="videoContainer" className="container">
-          <img id="face" src={logo} alt="faceImage" width="224" height="224" className="centered"/>
           <video autoPlay playsInline muted id="webcam" width="224" height="224" className="centered"></video>
           <svg ref={svgRef} className="centered" width="224" height="224"/>
         </div>

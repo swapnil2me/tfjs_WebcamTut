@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import './App.css';
 
 var model,webcamElement,webcam,img,predictions;
-const offset = 20;
+
 var facemesh = require('@tensorflow-models/facemesh');
 
 async function loadFacenet() {
@@ -13,14 +13,14 @@ async function loadFacenet() {
         console.log("Facenet Loaded");
          webcamElement = document.getElementById('webcam');
          webcam = await tf.data.webcam(webcamElement);
-         img = await webcam.capture();
+
       };
 loadFacenet();
 
 // var line = d3.line()
 //          .x(function(d,i){return d.x;})
 //          .y(function(d,i){return d.y;})
-//          .curve(d3.curveStep);
+//          .curve(d3.curveLinear);
 
 function App() {
 
@@ -41,6 +41,20 @@ function App() {
     // const predictions = await model.estimateFaces(document.getElementById('face'));
     for (let i = 0; i < predictions.length; i++) {
 
+      // let pointVector = predictions[i].mesh;
+      //
+      // let arrayOfArrays = pointVector;
+      //
+      // let pntSum = arrayOfArrays.reduce(function(array1, array2) {
+      //     return array1.map(function(value, index) {
+      //       return value + array2[index];
+      //     });
+      //   });
+
+      // let noseTip = predictions[i].annotations['noseTip'];
+
+      // console.log(pntSum);
+
       let features = ['leftEyeLower0',
                       'leftEyeUpper0',
                       'rightEyeLower0',
@@ -51,11 +65,13 @@ function App() {
       // console.log(predictions[i].annotations);
       for (var k = 0; k < features.length; k++) {
         const keypoints = predictions[i].annotations[features[k]];
-
         if (keypoints.length>0) {
+          let xOffset = -35;
+          let yOffset = 45;
           var dataArray = keypoints.map((e,l) => {
-                                        return {x:e[0]-1.8*0,y:e[1]-0};
+                                        return {x:0.8*e[0]+xOffset,y:0.75*e[1]+yOffset};
                                         });
+
 
           svg.append("g").attr("class","fuel")
             .selectAll("circle")
@@ -65,14 +81,18 @@ function App() {
                     .attr("cy",function(d){return d.y;})
                     .attr("fill","yellow")
                     .attr("r","1.0");
-
-          // svg.append("path")
-          //   .attr("fill","none")
-          //   .attr("stroke","yellow")
-          //   .attr("d",line(dataArray1));
         }
 
       }
+      // svg.append("path")
+      //   .attr("fill","none")
+      //   .attr("stroke","red")
+      //   .attr("stroke-width",'2')
+      //   .attr("d",line([{x:0,y:0},{x:noseTip[0][0],y:noseTip[0][2]}]));
+
+      // console.log(dataArray);
+      // console.log(noseTip[0][2]);
+      // console.log();
       console.log(j++);
     }
 

@@ -10,3 +10,5 @@ facemesh-app/coverage
 
 # production
 facemesh-app/build
+
+facemesh-app/src/car.mp4

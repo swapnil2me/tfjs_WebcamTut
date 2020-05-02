@@ -41,16 +41,15 @@ function App() {
     // const predictions = await model.estimateFaces(document.getElementById('face'));
     for (let i = 0; i < predictions.length; i++) {
 
-      let features = ['leftEyeLower0','leftEyeLower1','leftEyeLower2','leftEyeLower3',
-                      'leftEyeUpper0','leftEyeUpper1','leftEyeUpper2',
-                      'rightEyeLower0','rightEyeLower1','rightEyeLower2','rightEyeLower3',
-                      'rightEyeUpper0','rightEyeUpper1','rightEyeUpper2',
+      let features = ['leftEyeLower0',
+                      'leftEyeUpper0',
+                      'rightEyeLower0',
+                      'rightEyeUpper0',
                       'lipsLowerInner','lipsLowerOuter','lipsUpperInner','lipsUpperOuter'
                     ]
 
       // console.log(predictions[i].annotations);
       for (var k = 0; k < features.length; k++) {
-        console.log(predictions[i].annotations,features[k]);
         const keypoints = predictions[i].annotations[features[k]];
 
         if (keypoints.length>0) {

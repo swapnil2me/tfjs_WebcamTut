@@ -1,21 +1,20 @@
 import * as tf from '@tensorflow/tfjs';
-import logo from './car.mp4';
-import React, {useState, useRef} from 'react';
+// import logo from './ModiandI.jpg';
+import React, { useState, useRef } from 'react';
 import * as d3 from 'd3';
 import './App.css';
 
-var model,webcamElement,webcam,img,predictions;
+var model, webcamElement, webcam, img, predictions;
 
 var facemesh = require('@tensorflow-models/facemesh');
 
 async function loadFacenet() {
-        model = await facemesh.load();
-        console.log("Facenet Loaded");
-         webcamElement = document.getElementById('webcam');
-         webcam = webcamElement;//await tf.data.webcam(webcamElement);
+  model = await facemesh.load();
+  console.log("Facenet Loaded");
+  webcamElement = document.getElementById('webcam');
+  webcam = await tf.data.webcam(webcamElement);
 
-
-      };
+};
 loadFacenet();
 
 // var line = d3.line()
@@ -26,27 +25,32 @@ loadFacenet();
 function App() {
 
   const [timeseriesMode, setTimeseriesMode] = useState(false);
+  const [interval, setstoreInterval] = useState('');
 
   let j = 0;
   const svgRef = useRef();
 
+  const handleClick = () => {
+    setTimeseriesMode(!timeseriesMode);
+    console.log('timeseriesMode ::', timeseriesMode);
+    if (!timeseriesMode) {
+      const interval = setInterval(main, 1000);
+      setstoreInterval(interval);
+      console.log("swap");
+    }
+    if (timeseriesMode) {
+      clearInterval(interval);
+    }
+  }
+
   async function main() {
-
-    var svgtest = d3.select(svgRef.current).select("svg");
-        if (!svgtest.empty()) {
-          console.log("updating !");
-          svgtest.remove();
-        }
-
-    var svg = d3.select(svgRef.current)
-                .append("svg")
-                .attr("class", "centered")
-                .attr("height","448px")
-                .attr("width","448px");
-    // svg.selectAll("*").remove();
+    console.log('mainmainmainmain');
+    var svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove();
     // Pass in a video stream (or an image, canvas, or 3D tensor) to obtain an
     // array of detected faces from the MediaPipe graph.
-    img = webcam;//await webcam.capture();
+
+    img = await webcam.capture();
     predictions = await model.estimateFaces(img);
     // const predictions = await model.estimateFaces(document.getElementById('face'));
     for (let i = 0; i < predictions.length; i++) {
@@ -66,31 +70,31 @@ function App() {
       // console.log(pntSum);
 
       let features = ['leftEyeLower0',
-                      'leftEyeUpper0',
-                      'rightEyeLower0',
-                      'rightEyeUpper0',
-                      'lipsLowerInner','lipsLowerOuter','lipsUpperInner','lipsUpperOuter'
-                    ]
+        'leftEyeUpper0',
+        'rightEyeLower0',
+        'rightEyeUpper0',
+        'lipsLowerInner', 'lipsLowerOuter', 'lipsUpperInner', 'lipsUpperOuter'
+      ]
 
       // console.log(predictions[i].annotations);
       for (var k = 0; k < features.length; k++) {
         const keypoints = predictions[i].annotations[features[k]];
-        if (keypoints.length>0) {
-          let xOffset = -30;
-          let yOffset = 85;
-          var dataArray = keypoints.map((e,l) => {
-                                        return {x:0.8*e[0]+xOffset,y:0.75*e[1]+yOffset};
-                                        });
+        if (keypoints.length > 0) {
+          let xOffset = -35;
+          let yOffset = 45;
+          var dataArray = keypoints.map((e, l) => {
+            return { x: 0.8 * e[0] + xOffset, y: 0.75 * e[1] + yOffset };
+          });
 
 
-          svg.append("g").attr("class","fuel")
+          svg.append("g").attr("class", "fuel")
             .selectAll("circle")
             .data(dataArray)
             .enter().append("circle")
-                    .attr("cx",function(d){return d.x;})
-                    .attr("cy",function(d){return d.y;})
-                    .attr("fill","yellow")
-                    .attr("r","1.0");
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function (d) { return d.y; })
+            .attr("fill", "yellow")
+            .attr("r", "1.0");
         }
 
       }
@@ -106,7 +110,7 @@ function App() {
       console.log(j++);
     }
 
-    // img.dispose();
+    img.dispose();
     await tf.nextFrame();
 
     // if (predictions.length > 0) {
@@ -128,29 +132,14 @@ function App() {
     <div className="App">
       <button onClick={() => loadFacenet()} >Init</button>
       <button onClick={() => main()} >Find Face Once</button>
-      <button onClick={(event)=>{
-                        setTimeseriesMode(!timeseriesMode);
-                        clearInterval(main);
-                        if (timeseriesMode) {
-                          setInterval(main, 100);
-                          console.log("swap");
-                        }
-                      }}>
-      Continuous Mode: {timeseriesMode ? 'True' : 'False'}
+      <button onClick={handleClick}>
+        Continuous Mode: {timeseriesMode ? 'True' : 'False'}
       </button>
 
       <header className="App-header">
-        <div id="videoContainer" className="container" ref={svgRef}>
-
-          <video controls="controls" playsinline autoplay muted loop
-                 width="500"
-                 height="500"
-                 className="centered"
-                 id="webcam">
-
-                 <source src={logo} type="video/mp4"/>
-          </video>
-
+        <div id="videoContainer" className="container">
+          <video autoPlay playsInline muted id="webcam" width="448" height="448" className="centered"></video>
+          <svg ref={svgRef} className="centered" width="448" height="448" />
         </div>
       </header>
     </div>
